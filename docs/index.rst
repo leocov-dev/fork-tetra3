@@ -12,4 +12,5 @@
    self
    installation
    api_docs
+   development
    

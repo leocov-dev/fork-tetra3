@@ -109,6 +109,7 @@ from PIL import Image, ImageDraw
 
 _MAGIC_RAND = np.uint64(2654435761)
 _supported_databases = ('bsc5', 'hip_main', 'tyc_main')
+_lib_root = Path(__file__).parent
 
 def _insert_at_index(pattern, hash_index, table):
     """Inserts to table with quadratic probing. Returns table index where pattern was inserted."""
@@ -635,8 +636,9 @@ class Tetra3():
                 application is generated (this is most efficient size and speed wise).
             save_as (str or pathlib.Path, optional): Save catalogue here when finished. Calls
                 :meth:`save_database`.
-            star_catalog (string, optional): Abbreviated name of star catalog, one of 'bsc5',
-                'hip_main', or 'tyc_main'. Default 'hip_main'.
+            star_catalog (string or pathlib.Path, optional): Abbreviated name of star catalog,
+            one of 'bsc5', 'hip_main', or 'tyc_main'. Default 'hip_main'. May specify a path that
+            ends with the abbreviated name.
             pattern_stars_per_fov (int, optional): Number of stars used for pattern matching in each
                 region of size 'max_fov'. Default 10.
             verification_stars_per_fov (int, optional): Number of stars used for verification of the
@@ -673,6 +675,8 @@ class Tetra3():
                                   range_ra, range_dec, presort_patterns, save_largest_edge,
                                   multiscale_step, epoch_proper_motion)))
 
+        star_catalog, catalog_file_full_pathname = self._build_catalog_path(star_catalog)
+
         assert star_catalog in _supported_databases, 'Star catalogue name must be one of: ' \
              + str(_supported_databases)
         max_fov = np.deg2rad(float(max_fov))
@@ -697,14 +701,6 @@ class Tetra3():
             self._logger.debug('Proper motion epoch set to now: ' + str(epoch_proper_motion))
         else:
             raise ValueError('epoch_proper_motion value %s is forbidden' % epoch_proper_motion)
-
-        catalog_file_full_pathname = Path(__file__).parent / star_catalog
-        # Add .dat suffix for hip and tyc if not present
-        if star_catalog in ('hip_main', 'tyc_main') and not catalog_file_full_pathname.suffix:
-            catalog_file_full_pathname = catalog_file_full_pathname.with_suffix('.dat')
-
-        assert catalog_file_full_pathname.exists(), 'No star catalogue found at ' \
-                                                    + str(catalog_file_full_pathname)
 
         # Calculate number of star catalog entries:
         if star_catalog == 'bsc5':
@@ -1792,6 +1788,32 @@ class Tetra3():
             # Have 1D array, pick indices
             output['matched_catID'] = self.star_catalog_IDs[star_indices].tolist()
         return output
+
+    @staticmethod
+    def _build_catalog_path(star_catalog):
+        """ build the path to the star catalog and parse the catalog name
+        Args:
+            star_catalog (str or pathlib.Path, optional): the name or path to the star catalog file
+        Returns:
+            (tuple[str, pathlib.Path]): return the pure catalog name and the file path
+        """
+        if star_catalog in _supported_databases:
+            # only name supplied, assume file is adjacent to this code file
+            catalog_file_full_pathname = _lib_root / star_catalog
+        else:
+            # a path string or path object supplied, parse out the pure name
+            catalog_file_full_pathname = Path(star_catalog).expanduser()
+            star_catalog = catalog_file_full_pathname.name.rstrip(catalog_file_full_pathname.suffix)
+
+        # Add .dat suffix for hip and tyc if not present
+        if star_catalog in ('hip_main', 'tyc_main') and not catalog_file_full_pathname.suffix:
+            catalog_file_full_pathname = catalog_file_full_pathname.with_suffix('.dat')
+
+        assert catalog_file_full_pathname.exists(), 'No star catalogue found at ' \
+                                                    + str(catalog_file_full_pathname)
+
+        return star_catalog, catalog_file_full_pathname
+
 
 def get_centroids_from_image(image, sigma=2, image_th=None, crop=None, downsample=None,
                              filtsize=25, bg_sub_mode='local_mean', sigma_mode='global_root_square',
