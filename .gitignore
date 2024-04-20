@@ -2,6 +2,18 @@
 /docs/_*
 /docs/*.log
 
+# IDE
+.idea/
+.vscode/
+.devcontainer/
+
+# Local Development
+.venv/
+venv/
+.venv*/
+venv*/
+.python-version
+
 # Cache
 *__pycache__*
 
@@ -16,9 +28,13 @@
 # Settings
 /setup.cfg
 
+# OS
+.DS_Store
+
 # Star catalogue
 /BSC5*
 
 # Databases except the default
 *.npz
 !**/default_database.npz
+*.dat

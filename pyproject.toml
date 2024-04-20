@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tetra3"
+version = "0.1"
+description = "A fast lost-in-space plate solver for star trackers."
+readme = "README.rst"
+authors = [{ name = "Gustav Pettersson" }]
+license = { file = "LICENSE.txt" }
+requires-python = ">=3.7"
+keywords = ["astronomy"]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3 :: Only",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Astronomy",
+]
+
+dependencies = [
+    "numpy >= 1.21.1",
+    "Pillow >= 8.3.1",
+    'scipy >= 1.7.1',
+]
+
+[project.urls]
+docs = "https://tetra3.readthedocs.io/en/latest/"
+
+[project.scripts]
+tetra3-gen-db = "tetra3.__main__:generate_database"
+
+[project.optional-dependencies]
+dev = [
+    "pytest"
+]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"tetra3.data" = ["data/default_database.npz"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tetra3*"]
+exclude = ["tests"]
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+]

@@ -3,6 +3,12 @@ Welcome to tetra3!
 
 *tetra3 is a fast lost-in-space plate solver for star trackers written in Python.*
 
+.. image:: https://img.shields.io/github/license/esa/tetra3
+   :alt: GitHub License
+
+.. image:: https://img.shields.io/github/actions/workflow/status/esa/tetra3/ci.yaml
+   :alt: GitHub Actions Workflow Status
+
 Use it to identify stars in images and get the corresponding direction (i.e. right ascension and
 declination) in the sky which the camera points to and indentification of the stars. tetra3
 supports solving distorted images and a wide range of field of view. The default database is

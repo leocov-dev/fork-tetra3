@@ -94,6 +94,7 @@ import itertools
 from time import perf_counter as precision_timestamp
 from datetime import datetime
 from numbers import Number
+from typing import Union, Tuple
 
 # External imports:
 import numpy as np
@@ -566,13 +567,25 @@ class Tetra3():
 
         np.savez_compressed(path, **to_save)
 
-    def generate_database(self, max_fov, min_fov=None, save_as=None,
-                          star_catalog='hip_main', pattern_stars_per_fov=10,
-                          verification_stars_per_fov=30, star_max_magnitude=7,
-                          pattern_max_error=.005, simplify_pattern=False,
-                          range_ra=None, range_dec=None,
-                          presort_patterns=True, save_largest_edge=False,
-                          multiscale_step=1.5, epoch_proper_motion='now'):
+    def generate_database(
+        self,
+        max_fov: float,
+        min_fov: float = None,
+        save_as: Union[str, Path] = None,
+        star_catalog: str = 'hip_main',
+        pattern_stars_per_fov: int = 10,
+        verification_stars_per_fov: int = 30,
+        star_max_magnitude: float = 7.0,
+        pattern_max_error: float = 0.005,
+        simplify_pattern: bool = False,
+        range_ra: Tuple[float, float] = None,
+        range_dec: Tuple[float, float] = None,
+        presort_patterns: bool = True,
+        save_largest_edge: bool = False,
+        multiscale_step: float = 1.5,
+        epoch_proper_motion: Union[str, float] = 'now',
+        star_catalog_dir: Union[str, Path] = None,
+    ):
         """Create a database and optionally save it to file.
 
         Takes a few minutes for a small (large FOV) database, can take many hours for a large (small FOV) database.
@@ -665,6 +678,9 @@ class Tetra3():
                 stellar proper motions are propagated. If 'now' (default), the current year is used.
                 If 'none' or None, star motions are not propagated and this allows catalogue entries
                 without proper motions to be used in the database.
+            star_catalog_dir (str or pathlib.Path, optional): Specify the directory where the
+                star_catalog database file should be located. If not specified, star_catalog is
+                assumed to be in the same directory as this file.
         """
         self._logger.debug('Got generate pattern catalogue with input: '
                            + str((max_fov, min_fov, save_as, star_catalog, pattern_stars_per_fov,
@@ -698,7 +714,11 @@ class Tetra3():
         else:
             raise ValueError('epoch_proper_motion value %s is forbidden' % epoch_proper_motion)
 
-        catalog_file_full_pathname = Path(__file__).parent / star_catalog
+        if star_catalog_dir:
+            catalog_file_full_pathname = Path(star_catalog_dir) / star_catalog
+        else:
+            catalog_file_full_pathname = Path(__file__).parent / star_catalog
+
         # Add .dat suffix for hip and tyc if not present
         if star_catalog in ('hip_main', 'tyc_main') and not catalog_file_full_pathname.suffix:
             catalog_file_full_pathname = catalog_file_full_pathname.with_suffix('.dat')
