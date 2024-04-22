@@ -29,7 +29,7 @@ jobs:
         run: >
           TAG=${{ steps.vars.outputs.tag }} 
           python3 -m pip install toml 
-          && python3 scripts/validate-release-version.py
+          && python3 scripts/validate-version.py --check-tag
 
       - name: Build Source & Wheel
         run: >
