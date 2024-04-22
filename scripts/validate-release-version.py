@@ -5,14 +5,17 @@ import os
 import sys
 import toml
 from pathlib import Path
-from docs import conf
 
 __repo = Path(__file__).parent.parent
+
+# make conf.py importable
+sys.path.append(str(__repo / 'docs'))
 
 if __name__ == "__main__":
 
     tag_version = os.environ.get("TAG", "")
 
+    import conf
     docs_version = conf.release
 
     with open(__repo / "pyproject.toml", "r") as ppt:
