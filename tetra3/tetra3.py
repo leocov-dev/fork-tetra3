@@ -112,8 +112,8 @@ from scipy.spatial.distance import pdist, cdist
 from PIL import Image, ImageDraw
 
 # Local imports.
-from breadth_first_combinations import breadth_first_combinations
-from fov_util import fibonacci_sphere_lattice, num_fields_for_sky, separation_for_density
+from tetra3.breadth_first_combinations import breadth_first_combinations
+from tetra3.fov_util import fibonacci_sphere_lattice, num_fields_for_sky, separation_for_density
 
 # Status codes returned by solve_from_image() and solve_from_centroids()
 MATCH_FOUND = 1
@@ -462,6 +462,7 @@ class Tetra3():
         The table takes different format depending on the source catalogue used
         to build the database. See the `star_catalog` key of
         :meth:`database_properties` to find the source catalogue.
+
             - bsc5: A numpy array of size (N,) with datatype uint16. Stores the 'BSC' number.
             - hip_main: A numpy array of size (N,) with datatype uint32. Stores the 'HIP' number.
             - tyc_main: A numpy array of size (N, 3) with datatype uint16. Stores the
@@ -896,13 +897,15 @@ class Tetra3():
             If you wish to build you own database you must download a star catalogue. tetra3
             supports three options, where the 'hip_main' is the default and recommended
             database to use:
+
             * The 285KB Yale Bright Star Catalog 'BSC5' containing 9,110 stars. This is complete to
-              to about magnitude seven and is sufficient for >10 deg field-of-view setups.
+              about magnitude seven and is sufficient for >10 deg field-of-view setups.
             * The 51MB Hipparcos Catalogue 'hip_main' containing 118,218 stars. This contains about
               three stars per square degree and is sufficient down to about >3 deg field-of-view.
             * The 355MB Tycho Catalogue 'tyc_main' (also from the Hipparcos satellite mission)
               containing 1,058,332 stars. This is complete to magnitude 10 and is sufficient
               for all tetra3 databases.
+
             The 'BSC5' data is avaiable from <http://tdc-www.harvard.edu/catalogs/bsc5.html> (use
             byte format file) and 'hip_main' and 'tyc_main' are available from
             <https://cdsarc.u-strasbg.fr/ftp/cats/I/239/> (save the appropriate .dat file). The
@@ -977,10 +980,11 @@ class Tetra3():
         hashing and table collisions induced are modest.
 
         * We have two hashing concepts in play. The first is "geometric hashing" from the field of
-        object recognition and pattern matching (https://en.wikipedia.org/wiki/Geometric_hashing),
-        where a 4-star pattern is distilled to our pattern hash, a 5-tuple of quantized edge ratios.
-        The second is a "hash table" (https://en.wikipedia.org/wiki/Hash_table) where the pattern
-        hash is hashed to index into a compact table of all of the star patterns.
+          object recognition and pattern matching (https://en.wikipedia.org/wiki/Geometric_hashing),
+          where a 4-star pattern is distilled to our pattern hash, a 5-tuple of quantized edge ratios.
+          The second is a "hash table" (https://en.wikipedia.org/wiki/Hash_table) where the pattern
+          hash is hashed to index into a compact table of all of the star patterns.
+
 
         Args:
             max_fov (float): Maximum angle (in degrees) between stars in the same pattern.
@@ -1004,7 +1008,10 @@ class Tetra3():
                 based on `min_fov` and `verification_stars_per_fov`.
             pattern_max_error (float, optional): This value determines the number of bins into which
                 a pattern hash's edge ratios are each quantized:
-                  pattern_bins = 0.25 / pattern_max_error
+                ::
+
+                    pattern_bins = 0.25 / pattern_max_error
+
                 Default .001, corresponding to pattern_bins=250. For a database with limiting magnitude
                 7, this yields a reasonable pattern hash collision rate.
             range_ra (tuple, optional): Tuple with the range (min_ra, max_ra) in degrees (0 to 360).

@@ -1,0 +1,61 @@
+name: Continuous Integration
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  # Documentation ---
+  docs:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.7", "3.8", "3.9", "3.10", "3.11", "3.12" ]
+
+    name: Docs Build Smoke Test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Setup Docs Dependencies
+        run: pip install -e ".[docs]"
+
+      - name: Check Docs Build
+        run: >
+          cd docs
+          && make html
+
+  # Wheels ---
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
+
+    name: Build Smoke Test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Check Version Strings
+        run: >
+          TAG=${{ steps.vars.outputs.tag }} 
+          python3 -m pip install toml 
+          && python3 scripts/validate-version.py
+
+      - name: Check Build
+        run: >
+          python3 -m pip install -U build twine 
+          && python3 -m build 
+          && twine check dist/**
